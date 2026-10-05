@@ -67,16 +67,16 @@
     "created_at": "2026-09-21T18:58:10.077603+00:00",
     "created_by": "agent",
     "first_seen_at": null,
-    "last_patched_at": "2026-09-30T15:43:16.427888+00:00",
+    "last_patched_at": "2026-10-05T10:59:05.869053+00:00",
     "last_reused_patch_generation": 2,
-    "last_used_at": "2026-10-01T00:18:04.301171+00:00",
-    "last_viewed_at": "2026-10-01T00:18:04.299976+00:00",
-    "patch_count": 2,
-    "patch_generation": 2,
+    "last_used_at": "2026-10-05T10:58:57.851089+00:00",
+    "last_viewed_at": "2026-10-05T10:58:57.849898+00:00",
+    "patch_count": 3,
+    "patch_generation": 3,
     "pinned": false,
     "state": "active",
-    "use_count": 10,
-    "view_count": 10
+    "use_count": 11,
+    "view_count": 11
   },
   "github": {
     "archived_at": null,
@@ -99,14 +99,14 @@
     "created_by": null,
     "last_patched_at": null,
     "last_reused_patch_generation": 0,
-    "last_used_at": "2026-10-05T08:53:35.518512+00:00",
-    "last_viewed_at": "2026-10-05T08:53:35.517466+00:00",
+    "last_used_at": "2026-10-05T11:47:52.221986+00:00",
+    "last_viewed_at": "2026-10-05T11:47:52.220872+00:00",
     "patch_count": 0,
     "patch_generation": 0,
     "pinned": false,
     "state": "active",
-    "use_count": 16,
-    "view_count": 16
+    "use_count": 20,
+    "view_count": 20
   },
   "hermes-agent-skill-authoring": {
     "archived_at": null,
@@ -185,6 +185,22 @@
     "state": "active",
     "use_count": 13,
     "view_count": 13
+  },
+  "peer-agents": {
+    "archived_at": null,
+    "created_at": "2026-10-05T11:48:46.356398+00:00",
+    "created_by": "agent",
+    "first_seen_at": null,
+    "last_patched_at": "2026-10-05T11:49:05.186832+00:00",
+    "last_reused_patch_generation": 0,
+    "last_used_at": "2026-10-05T11:49:00.323867+00:00",
+    "last_viewed_at": "2026-10-05T11:49:00.246813+00:00",
+    "patch_count": 1,
+    "patch_generation": 1,
+    "pinned": false,
+    "state": "active",
+    "use_count": 1,
+    "view_count": 1
   },
   "read-the-damn-docs": {
     "archived_at": null,

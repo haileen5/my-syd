@@ -85,6 +85,18 @@ git diff --stat HEAD <ref> -- path     # what changed vs checkout
 Run these as small batches with explicit timeouts — one oversized shell call
 dying takes every command's output down with it.
 
+### Pushing a local branch to a fork leaves a stale upstream
+
+Pushing `HEAD:refs/heads/<branch>` creates the remote branch but does NOT move the local branch's upstream — `git status` keeps comparing against whatever it tracked before (often `origin/beta`), misleading the next session.
+
+**Fix — set the upstream to the fork's matching branch right after the first push:**
+
+```bash
+git push origin HEAD:refs/heads/<branch>
+git branch --set-upstream-to=origin/<branch> <branch>
+git status -sb   # expect: ## <branch>...origin/<branch>
+```
+
 ### Missing git identity on fresh clones
 
 New clones may lack both global and per-repo `user.name`/`user.email`.
