@@ -38,7 +38,10 @@ PHP code changes, test writing, and API resource transformers.
    that exist in `phpstan-baseline.neon`, the old entries become unmatched
    and PHPStan reports new errors. Run `vendor/bin/phpstan analyse
    --generate-baseline` after every fix round, then verify with
-   `composer phpstan`.
+   `composer phpstan`. The same regenerate is also the fix when CI fails with
+  `Ignored error pattern … expected to occur N times, but occurred M times`
+  on an untouched branch — upstream edits drifted the counts, no source
+  change needed.
 
 ## Pitfalls
 
