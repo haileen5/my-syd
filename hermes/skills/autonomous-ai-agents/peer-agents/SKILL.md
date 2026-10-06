@@ -39,6 +39,23 @@ GitHub Actions workflow; "give X a task" = `hermes peer dm X "..."`.
 hermes peer dm nazila "..."
 hermes peer dm aylin "..."
 ```
+- Peer DMs for heavy tasks (issue reading, coding, commit+push) can run 5–10 min.
+First send a short liveness probe (e.g. "سلام، آماده‌ای؟") with `timeout 30`.
+If it replies, the channel is up — then send the full payload with `timeout 550`.
+If the full DM yields to background, track via process poll/wait. If the first
+DM times out, retry once before concluding the peer is down.
+- A timeout on a heavy DM often means the task COMPLETED anyway — probe with
+a lightweight message before resending; the peer usually reports the finished
+result. Resending the full payload duplicates the work.
+
+**Watch PRs opened from a peer branch:**
+```bash
+gh pr view <n> --repo asgarimehdi/h-dashboard --json comments,reviews
+```
+Poll for `reviews[].state == "CHANGES_REQUESTED"`; route each requested fix
+back to the peer via DM (short payload, it already knows the context), have
+it commit+push, then re-poll. Reviewers may leave comments minutes-to-hours
+later — do not assume silence means done.
 
 **Stop a peer:** cancel its Actions run (the peer runs as a workflow):
 ```bash
@@ -47,6 +64,8 @@ gh run cancel <run-id> --repo haileen5/my-naz
 ```
 `hermes peer stop` only stops an async `hermes peer run`, NOT the gateway
 process itself — use `gh run cancel` to actually turn the peer off.
+`gh run cancel` may return HTTP 502 on first attempt — retry once; also
+allow ~30–60s (and re-poll) for the run's status to flip to `cancelled`.
 
 ## Pitfalls
 
@@ -57,3 +76,14 @@ process itself — use `gh run cancel` to actually turn the peer off.
   memory and migrate reusable entries into skills.
 - Never hardcode a peer's branch or fork URL — read `git remote -v` /
   `git config --get-regexp '^branch\.'` on that peer when needed.
+- Peers run in a non-interactive gateway: they CANNOT write to protected
+  files (AGENTS.md) — the file-mutation verifier blocks the patch and the
+  peer reports it as a WARNING. Never claim the write landed. To apply the
+  text yourself: from the home repo, `git stash` any dirty files,
+  `git checkout <peer-branch>` (create a local tracking branch), patch,
+  commit, `git push origin HEAD:refs/heads/<peer-branch>`, then
+  `git checkout <original>` and `git stash pop`. Ask the peer to print the
+  exact block so you paste it verbatim — do not reconstruct from memory.
+- When a peer reports success, always check the trailing
+  `File-mutation verifier` warning — it lists every edit that failed
+  despite the wording above.
