@@ -21,24 +21,45 @@ GitHub Actions workflow; "give X a task" = `hermes peer dm X "..."`.
 
 ## Procedure
 
+**Where the peers live (verify before trusting):**
+Both peer workflows live in `haileen5/my-syd`, display names `aylin` and
+`nazila`. The repos this skill used to cite (`my-ayl`, `my-naz`) no longer
+exist, so a hardcoded name 404s — re-verify with the discovery step below
+whenever a repo/workflow lookup fails, and fix this section in place when the
+peers move again.
+```bash
+gh workflow list --repo haileen5/my-syd
+gh repo list haileen5 --limit 100 --json name,visibility   # discovery
+```
+Discovery rule: when `gh workflow list --repo <guessed>` 404s, do NOT guess
+another name — list the user's repos and grep for the peer workflow names.
+The workflows have already moved once; the repo is not a stable constant.
+
 **Wake a peer:**
-1. Find the workflow's display name — it is NOT always the filename.
-   ```bash
-   gh workflow list --repo haileen5/my-naz   # or my-ayl
-   ```
-   The first column is the display name; use THAT with `gh workflow run`.
+1. Confirm the display name — it is NOT always the filename. The first column
+   of `gh workflow list` is the display name; use THAT with `gh workflow run`.
 2. Run it:
    ```bash
-   gh workflow run <display-name> --repo haileen5/my-naz
+   gh workflow run aylin  --repo haileen5/my-syd
+   gh workflow run nazila --repo haileen5/my-syd
    ```
    A 404 (`workflow <name> not found`) means you used the filename or a
    wrong name — list again and use the display name exactly.
+3. Confirm the run started, then probe the peer until it answers. A started
+   run stays `in_progress` for the peer's whole life — never wait for it to
+   reach `completed`, and never read "in progress" as "not up yet".
+   ```bash
+   gh run list --repo haileen5/my-syd --limit 3 \
+     --json name,status,conclusion --jq '.[]|"\(.name)\t\(.status)"'
+   ```
 
 **Message a peer:**
 ```bash
+hermes peer list          # configured peer names + URLs + key state
 hermes peer dm nazila "..."
 hermes peer dm aylin "..."
 ```
+Peers answer in Persian — probe and report in Persian to match.
 - Peer DMs for heavy tasks (issue reading, coding, commit+push) can run 5–10 min.
 First send a short liveness probe (e.g. "سلام، آماده‌ای؟") with `timeout 30`.
 If it replies, the channel is up — then send the full payload with `timeout 550`.
@@ -59,8 +80,8 @@ later — do not assume silence means done.
 
 **Stop a peer:** cancel its Actions run (the peer runs as a workflow):
 ```bash
-gh run list --repo haileen5/my-naz --limit 5     # find run id + status
-gh run cancel <run-id> --repo haileen5/my-naz
+gh run list --repo haileen5/my-syd --limit 5 --json databaseId,name,status
+gh run cancel <run-id> --repo haileen5/my-syd
 ```
 `hermes peer stop` only stops an async `hermes peer run`, NOT the gateway
 process itself — use `gh run cancel` to actually turn the peer off.
@@ -69,6 +90,18 @@ allow ~30–60s (and re-poll) for the run's status to flip to `cancelled`.
 
 ## Pitfalls
 
+- **Cold-start latency dominates a wake.** After `gh workflow run`, the peer
+  needs roughly 3–6 min (image build + gateway boot + Tailscale DNS) before a
+  DM lands. Probe repeatedly instead of declaring failure:
+  1. `getent hosts aylin` / `getent hosts nazila` — empty means Tailscale DNS
+     has not published the host yet; wait 60–120s and re-check.
+  2. DNS resolves but `hermes peer dm` says `Connection refused` — host is up,
+     port 8642 not yet bound; wait another 90–150s and retry.
+  3. Only after DNS resolves AND the port has refused for several minutes
+     across multiple rounds is the peer genuinely down; check the run's job
+     steps (`gh run view <id> --json jobs`) for where it stalled.
+  One refusal is a normal boot state, not an outage — treat 3+ refusals across
+  5+ minutes as the failure signal.
 - `hermes peer dm` can time out (180s) on first contact even when the peer
   is alive — retry once before concluding it's down; a direct test from
   the user confirms reachability.

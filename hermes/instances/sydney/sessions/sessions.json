@@ -21,6 +21,7 @@
     "suspended": false,
     "resume_pending": false,
     "resume_reason": null,
+    "yolo": false,
     "last_resume_marked_at": null,
     "active_turn_token": null,
     "active_turn_started_at": null,
@@ -51,9 +52,9 @@
   },
   "agent:main:telegram:dm:100651143": {
     "session_key": "agent:main:telegram:dm:100651143",
-    "session_id": "20261007_153809_b0438844",
-    "created_at": "2026-10-07T15:38:09.304620",
-    "updated_at": "2026-10-07T15:38:09.304620",
+    "session_id": "20261008_164643_6495fcaa",
+    "created_at": "2026-10-08T16:46:43.510408",
+    "updated_at": "2026-10-08T16:46:43.510408",
     "display_name": "M A",
     "platform": "telegram",
     "chat_type": "dm",
@@ -70,6 +71,7 @@
     "suspended": false,
     "resume_pending": false,
     "resume_reason": null,
+    "yolo": false,
     "last_resume_marked_at": null,
     "active_turn_token": null,
     "active_turn_started_at": null,
@@ -87,7 +89,7 @@
       "user_name": "M A",
       "thread_id": null,
       "chat_topic": null,
-      "message_id": "5018"
+      "message_id": "5025"
     }
   }
 }
