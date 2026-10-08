@@ -1,13 +1,4 @@
 {
-  "updated_at": "2026-10-07T19:30:17.992787",
-  "platforms": {
-    "telegram": [
-      {
-        "id": "100651143",
-        "name": "M A",
-        "type": "dm",
-        "thread_id": null
-      }
-    ]
-  }
+  "updated_at": "2026-10-08T02:44:38.573796",
+  "platforms": {}
 }
