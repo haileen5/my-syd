@@ -1,3 +1,4 @@
+# Managed by RemoteHermes — template v2 (regenerated on Update; manual edits are overwritten)
 name: sydney
 
 on:
@@ -11,7 +12,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 340
     env:
       REPO_ORIGIN: https://github.com/haileen5/h-dashboard.git
@@ -433,11 +434,9 @@ jobs:
           # the NEXT run's checkout step dies in its 'Removing auth' phase:
           #   fatal: No url found for submodule path
           #   'hermes/plugins/<name>' in .gitmodules
-          # Git-repo plugins are upstream code: re-install them in step 13
-          # (like superpowers, §4e) instead of backing them up. Plain-file
-          # plugins (no .git) sync as before. Removing a git-repo plugin
-          # here also stages the deletion of any old gitlink for it in
-          # this sync commit.
+          # That is exactly the failure this guard prevents. Git-repo plugins are upstream
+          # code: re-install them in step 13 (like superpowers, §4e) instead
+          # of backing them up. Plain-file plugins (no .git) sync as before.
           if [ -d "$HDEST/plugins" ]; then
             for p in "$HDEST/plugins"/*/; do
               if [ -e "${p}.git" ]; then
