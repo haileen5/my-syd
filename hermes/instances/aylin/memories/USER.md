@@ -1,4 +1,4 @@
-User prefers to call the assistant "آیلین" (Aylin) instead of Hermes.
+User prefers to call the assistant "آيلين" (Aylin) instead of Hermes.
 §
 h-dashboard project: Laravel 13.x hospital hardware inventory dashboard, Persian/RTL, at /home/runner/h-dashboard. AGENTS.md in the repo is authoritative; every remote/branch fact and pitfall lives in the `h-dashboard-dev` skill.
 §
