@@ -30,7 +30,9 @@ List acceptance criteria, interfaces, migrations/state changes, compatibility, s
 
 ### 5. Implement the smallest complete change — and fix the class
 
-Work on an isolated branch or worktree, loading `systematic-debugging` or `test-driven-development` when the bug class calls for them. Add regression tests first, then implement. When the fix is in hand, `search_files` for the same bug shape at sibling call sites and fix the whole class in this PR — an incomplete fix that leaves known siblings broken is worse than none. Every changed line must trace to the issue; no drive-by cleanup. Done when targeted tests pass, the original failure no longer reproduces, and sibling sites are fixed or explicitly ruled out.
+Work on an isolated branch or worktree, loading `systematic-debugging` or `test-driven-development` when the bug class calls for them.
+
+If the base branch has no configured remote under `origin` (another repo's branch), fetch it by URL in one step — `git fetch https://github.com/<org>/<repo>.git <branch>` and branch off `FETCH_HEAD`; never remap `origin` and never guess the URL. Before branching, sweep the working tree: stash unrelated local drift ( lockfile churn from stray installs, scratch files) — `git checkout -b` carries the working tree, so an unswept diff rides into the scoped PR. If the scoped task forbids lockfile churn or specific files, drop them before branching. Add regression tests first, then implement. When the fix is in hand, `search_files` for the same bug shape at sibling call sites and fix the whole class in this PR — an incomplete fix that leaves known siblings broken is worse than none. Every changed line must trace to the issue; no drive-by cleanup. Done when targeted tests pass, the original failure no longer reproduces, and sibling sites are fixed or explicitly ruled out.
 
 ### 6. Prove the regression test bites (sabotage run)
 
@@ -44,6 +46,15 @@ Run the formatter, lint, typecheck, and the repo's canonical test entrypoint on 
 
 Inspect live checks and failure logs via `gh pr checks` / `gh run view --log-failed`. Distinguish failures introduced by your diff from pre-existing baseline or infrastructure failures — reproduce on the default branch when unsure, and rerun once only for genuine infra flakes. Never say "green," "merged," or "released" without live evidence of that exact state. When the PR lands, comment on the issue with the PR link and a one-line explanation so the reporter gets a traceable resolution. Done when CI state, remaining blockers, and the issue thread all reflect reality.
 
+## Variant: documentation-only issues (stale counts, dead references, false gotchas)
+
+Same loop, different premise check (step 3): re-verify every claim against the branch you will PR from before touching the text. Does the referenced file exist, is the symbol still live, does the stated count reproduce. A claim that no longer reproduces is reported in the PR body, not silently rewritten or "fixed" on faith. Two hard gates on the diff:
+
+- Every refreshed number is re-derived with the command the document itself names for counting (or the count and its "verified" stamp get dropped); the derivation is recorded in the PR body. A fresh number not produced by that command is the same defect as the stale one.
+- Encoding and marker gates: if the issue declares a byte-level constraint (forbidden codepoints like U+200C, no conflict markers), prove before == after with a byte-level count of those bytes in the PR body, captured BEFORE the first edit.
+
+The diff is docs-only: any change to a code file or a package lockfile is out of scope, even when it looks required to run the suite the doc describes.
+
 ## Pitfalls
 
 - Coding before reading issue comments, sweeping for duplicate PRs, or reading current code.
@@ -52,6 +63,10 @@ Inspect live checks and failure logs via `gh pr checks` / `gh run view --log-fai
 - Shipping a regression test that also passes without the fix.
 - Opening a PR with unrun tests or unrelated formatting churn.
 - Claiming the issue is delivered because a PR exists.
+- Swept-before-branching skipped: unrelated working-tree drift rides into the scoped PR diff.
+- Branching from a foreign repo's base by remapping `origin` or guessing the URL instead of one-shot `git fetch <url> <branch>` + `FETCH_HEAD`.
+- A docs-only fix ships a refreshed number not re-derived with the doc's own command, or an edit that breaches a stated encoding/marker gate without a before-count in the PR body.
+- A new formatted status report mentions PR opened, review requested, or CI green with no fresh `gh` read proving each state at that moment; when the session is cut mid-task, report the verified partial state and stop.
 
 ## Verification
 
