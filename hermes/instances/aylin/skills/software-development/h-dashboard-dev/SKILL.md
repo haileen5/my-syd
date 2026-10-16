@@ -22,7 +22,9 @@ project's own `AGENTS.md` stays authoritative over both.
 ## Session Setup
 
 1. `cd /home/runner/h-dashboard`, read `AGENTS.md` first — it overrides these notes.
-2. `codegraph sync` before any code Q&A, then `codegraph_explore` for structure,
+2. `codegraph sync` before any code Q&A; if it reports "not initialized" (e.g. after
+   a hard reset/clean removed `.codegraph/`), run `codegraph init` then `codegraph sync`.
+   Then `codegraph_explore` for structure,
    relationships and "where is X implemented" questions. Reading files first wastes
    turns on a large codebase.
 3. Official docs before assuming an API (`read-the-damn-docs`). Only run the
@@ -44,6 +46,26 @@ project's own `AGENTS.md` stays authoritative over both.
 - When the user just says `pr`, that means: open a pull request from the current
   working branch to `beta` on `asgarimehdi/h-dashboard`. Do not merge it unless
   asked.
+
+### Full Reset of a Working Branch to Canonical beta
+
+When the user asks to make the local branch exactly match canonical `beta`
+("exactly like beta", "delete any extra files"):
+
+1. Fetch canonical beta directly by URL — typically there is no `upstream` remote:
+   `git fetch https://github.com/asgarimehdi/h-dashboard.git beta`.
+2. Capture files with local content before wiping: `git status --porcelain` for
+   tracked edits, then `git checkout -- <edited files>` and `git reset --hard FETCH_HEAD`.
+3. Run `git clean -fd` for untracked files and `git clean -fdx -e .env -e .env.e2e -e
+   .env.dev.bak` for ignored build artifacts. NEVER let clean touch `.env` or its
+   backups — they are gitignored and irreplaceable (see e2e section below); never
+   `clean -fdx` bare.
+4. Push with the explicit refspec; try a plain push first and only add `--force` if
+   rejected — a force push with approval is fine for this task, but a push that
+   fast-forwards is strictly better. Verify equality from both sides:
+   `git ls-remote origin refs/heads/<branch>` must equal `git ls-remote
+   https://github.com/asgarimehdi/h-dashboard.git refs/heads/beta`.
+5. Report: new HEAD commit, what was deleted/kept, remote verification result.
 
 ## AGENTS.md Is Write-Protected on Hermes Surfaces
 

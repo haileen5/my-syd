@@ -1,0 +1,1 @@
+h-dashboard sync trick (2026-10): no `upstream` remote configured — fetch canonical beta directly: `git fetch https://github.com/asgarimehdi/h-dashboard.git beta` then `FETCH_HEAD` is the beta tip. `codegraph sync` errors if `.codegraph/` absent after a hard reset/clean; run `codegraph init` then `codegraph sync` to restore the index.
