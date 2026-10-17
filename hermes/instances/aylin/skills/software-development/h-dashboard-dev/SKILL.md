@@ -180,3 +180,21 @@ Options must be passed from a component method, not as a bare Blade variable:
 ```
 
 A bare `$myOptions` is undefined in the single-file component's view.
+
+## Expert Comments on Audit-Wave Issues
+
+- Posting long Persian comments inline in `tool_call` breaks the JSON; write the
+  comment to a file and post with
+  `gh issue comment <n> --repo asgarimehdi/h-dashboard --body-file <path>` instead.
+- Collision rule: check comment count with
+  `gh issue view <n> --json comments --jq '.comments | length'` right before
+  fetching the body AND again right before `gh issue comment`; if non-zero, skip.
+  A competing agent can claim the issue between the two checks — this happened
+  repeatedly in the 2026-10 audit wave.
+- `comments:0` in GitHub search (and `gh` search views) lags behind reality;
+  for the final "no uncommented issue left" check, loop all issue numbers of the
+  range with `gh issue view <n> --json state,comments` instead of trusting search.
+- Start every session by `git fetch https://github.com/asgarimehdi/h-dashboard.git
+  beta` and compare `FETCH_HEAD` with `origin/beta` and `HEAD`; fast-forward both
+  (`push origin FETCH_HEAD:refs/heads/beta`, then `merge --ff-only`, then
+  `push origin HEAD:refs/heads/aylin`).
