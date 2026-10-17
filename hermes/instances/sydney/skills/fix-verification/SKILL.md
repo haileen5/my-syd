@@ -1,7 +1,7 @@
 ---
 name: fix-verification
-description: "Use when checking which open issues are already fixed."
-version: 1.0.0
+description: "Use when verifying issue claims against code and CI."
+version: 1.1.0
 author: Hermes Agent
 license: MIT
 metadata:
@@ -11,7 +11,7 @@ metadata:
     related_skills: [git-workflow]
 ---
 
-# Fix Verification — pre-close issue audit
+# Fix Verification — issue-claim audit
 
 Answer "which open issues are fixed?" with a three-bucket verdict backed by
 code and CI — never by titles or the mere existence of a merged PR. The issue
@@ -19,11 +19,18 @@ body's acceptance checklist is the rubric; grade every line against it. Do NOT
 close anything yourself unless asked — hand the user the buckets and let them
 close.
 
+Two deliverables, one procedure: **(A)** the bucket report above, and **(B)** a
+per-issue audit verdict published back as a structured issue comment. Both share
+steps 1–6. For (B) — concurrent multi-issue audit waves, per-issue comment
+templates, anti-collision gating — see `references/issue-finding-audit.md`.
+
 ## When to Use
 
 - Asked which open issues are fixed / ready to close.
 - Auditing a backlog before a release or after a burst of merged PRs.
 - Confirming a single issue's fix actually shipped (same steps, one issue).
+- Working an audit/audit-wave queue: verify each issue's finding against the
+  pinned branch and publish a verdict comment per issue.
 - NOT for reviewing open PR code (use the `github` skill's code-review flow),
   and never for closing issues off keyword matches alone.
 
@@ -91,6 +98,26 @@ close.
   report it done.
 - Batch shell work in medium calls: one oversized execution that times out
   destroys every command's output in it, not just the slow one.
+- **An issue's plan is a claim about the code, not a fact about it.** Verify the
+  plan's *premises* before its steps: the named consumer may not read that API at
+  all, the file it says to update may not exist, and a listed site may already
+  have been migrated by an earlier issue. A plan built on a false premise sends
+  you editing working code. Grep each named file for the named symbol first.
+- **A plan step that reverts a behavior is a red flag until proven otherwise.**
+  Grep for a code comment and a test pinning that behavior. An intentional fix
+  ("used to be X nobody read, now Y", issue-tagged) plus a test asserting it is a
+  decision, not an oversight — say so and recommend dropping the step.
+- **Measure before asserting any number.** Sizes: raw `stat -c%s` plus
+  `gzip -9 -c f | wc -c`, never an estimate or a figure copied from the issue.
+  Schema/type claims: read the migration and the live catalog. Claimed savings:
+  distinguish what is actually removed from what is already cached, scoped, or
+  page-gated — a bundled dependency whose only consumer is dev-only is not
+  shipped weight.
+- **A finding hidden under a cache or behind an unexercised path is not the same
+  risk as the same finding on a hot path.** Say which side of that line the
+  target sits on; it changes the priority order of the plan's own steps.
+- Pipelines that filter away the match print nothing useful (`sed | grep`).
+  Grep the file directly with `-n` and context flags.
 
 ## Verification
 
