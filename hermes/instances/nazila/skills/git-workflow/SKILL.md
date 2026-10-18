@@ -116,6 +116,60 @@ git ls-remote --heads <remote> | grep <local-branch>  # verify it landed
 
 Never push to the tracked branch name (`beta`, `main`) unless that is the intent — the refspec above leaves it untouched.
 
+### Tracked dependency lockfiles block the sync merge
+
+`composer install` / `npm install` on the box rewrite the *tracked* lockfiles with
+resolved-version bumps the repo never committed. The sync merge then refuses to
+start at all:
+
+```
+error: Your local changes to the following files would be overwritten by merge:
+        package-lock.json
+Aborting
+```
+
+Prove the drift is install churn before discarding it — compare the working copy
+against the ref you are about to merge:
+
+```bash
+git diff --stat composer.lock package-lock.json
+git show <ref>:composer.lock | grep -A2 '"name": "laravel/framework"'
+grep -A2 '"name": "laravel/framework"' composer.lock
+```
+
+If the working copy is merely *newer* than every committed version, it is churn,
+not work:
+
+```bash
+git checkout -- composer.lock package-lock.json   # or: git stash push -- <those files>
+git merge --ff-only <ref>
+```
+
+Discard rather than commit: the committed lockfiles are the CI contract, and a
+box-local resolve pins versions nobody else can reproduce. Re-run
+`git status --porcelain` after the post-merge installs — they dirty the lockfiles
+again, and a dirty tree reads as unfinished work.
+
+### Fast-forwarding a fork's stale mirror branch
+
+When session rules require syncing the canonical `beta` into the fork's own
+`beta`, fetch it to an explicit ref and push **that ref** to the mirror branch:
+
+```bash
+git fetch <canonical-url> beta:refs/remotes/canonical/beta
+git rev-list --left-right --count HEAD...canonical/beta   # 0 ahead = pure-behind
+git merge --ff-only canonical/beta
+git push <origin> canonical/beta:refs/heads/beta          # mirror update
+```
+
+Git refuses a non-fast-forward push without `--force`, so this can only *advance*
+the mirror — it never loses fork-side commits. That is why it is legitimate where
+pushing your own working branch onto `beta` is not: it is a mirror update, not
+development. Confirm the push output shows a fast-forward (`old..new`) and never
+add `--force`. Name the fetched ref the way the project's own docs name it, and
+delete any ad-hoc ref you invented (`git update-ref -d refs/remotes/<tmp>/<branch>`) —
+leftover refs make later fetch output unreadable.
+
 ## Verification
 
 - `git status` shows no unexpected submodule entries.

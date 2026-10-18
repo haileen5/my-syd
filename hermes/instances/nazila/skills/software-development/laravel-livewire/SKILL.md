@@ -39,6 +39,13 @@ PHP code changes, test writing, and API resource transformers.
    and PHPStan reports new errors. Run `vendor/bin/phpstan analyse
    --generate-baseline` after every fix round, then verify with
    `composer phpstan`.
+7. **Run the full `composer test` suite in the background, then poll it.** The
+   suite outlives a single foreground shell call (a run that needs several
+   minutes gets cut off and its output is lost), so start it with the terminal
+   tool's background flag plus notify, and read the result from the session id.
+   While iterating, gate on the narrow path instead:
+   `composer verify tests/Feature/<Test>.php` runs the same Pint + PHPStan +
+   suite gates on just the files you name.
 
 ## Pitfalls
 
