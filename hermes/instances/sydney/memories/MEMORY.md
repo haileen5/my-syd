@@ -2,8 +2,6 @@ For h-dashboard PRs: user says 'pr' → create PR from current branch to upstrea
 §
 Boost MCP occasionally dies on first stdio call ("lost its stdio subprocess") — just call it again. CLI fallback always works: php scripts/boost_tool.php <tool> '<json>'.
 §
-h-dashboard branch sydney tracks origin/beta (branch.sydney.merge=refs/heads/beta), so `git status` shows 'sydney...origin/beta'; always use explicit refspecs HEAD:refs/heads/sydney.
-§
 MaryUI x-select defaults to optionValue='id'/optionLabel='name'. Options keyed 'value'/'label' need explicit option-value="value" option-label="label" or every <option> renders empty (blank control). Pass :options="$this->myOptions()" from a component method — a bare $myOptions is undefined in the Blade view.
 §
 e2e/env rules: scripts/e2e-test.sh not concurrency-safe (never two runs; .env.dev.bak may already be swapped — after a run verify `grep DB_DATABASE .env` == h_dashboard). Lost bak: cp .env.e2e .env, APP_URL=http://127.0.0.1:8000, DB_DATABASE=h_dashboard; kill orphan `kill $(pgrep -f 'artisan serve --port=800[1]')`, never pkill -f 'artisan serve' (kills shared :8000). .env is gitignored: rebuild from .env-example-github + secrets in .env.e2e, drop `secrets.` lines, verify `php artisan about --only=environment`; parse_ini_file fails (unquoted parens) — regex scan or config().
@@ -11,3 +9,5 @@ e2e/env rules: scripts/e2e-test.sh not concurrency-safe (never two runs; .env.de
 Map perf fixed (adc561f): bottleneck was main-thread rendering, not server (longtask /map pan 620→52ms). Fixed: circleMarker+lazy popup, icon cache, id-Map/memo depth, canvas lines, dead Livewire loadStats removed.
 §
 homeassistant is permanently deny-listed in ~/.hermes/config.yaml (plugins.disabled) — never re-enable or `hermes plugins install` it; it was never installed here.
+§
+Sync convention (2026-10-19): fork beta+sydney at upstream asgarimehdi/h-dashboard:beta 56d794a2. beta: fetch upstream raw URL to refs/remotes/upstream-tmp/beta, push +refs/remotes/upstream-tmp/beta:refs/heads/beta (never HEAD:refs/heads/beta — wrong work; + deletes stray tmp tag). sydney: merge --ff-only origin/beta, push HEAD:refs/heads/sydney, upstream=origin/sydney. Dirty composer.lock/package-lock.json unrelated — pending.

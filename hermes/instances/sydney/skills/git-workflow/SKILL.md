@@ -94,8 +94,38 @@ Pushing `HEAD:refs/heads/<branch>` creates the remote branch but does NOT move t
 ```bash
 git push origin HEAD:refs/heads/<branch>
 git branch --set-upstream-to=origin/<branch> <branch>
-git status -sb   # expect: ## <branch>...origin/<branch>
+- `git status -sb   # expect: ## <branch>...origin/<branch>`
 ```
+
+Wrong-upstream tracking makes `git status` show phantom ahead/behind counts
+that mislead the next session into conclusions like "branch is X behind" from
+a ref the work was never pushed to.
+```
+
+### Syncing a fork branch with upstream (no extra remote needed)
+Fetch the upstream branch by its raw URL into a throwaway tracking ref, then
+push that ref onto the fork — never the checkout path:
+
+```bash
+git fetch --no-tags https://github.com/<org>/<repo>.git +refs/heads/beta:refs/remotes/upstream-tmp/beta
+git push origin +refs/remotes/upstream-tmp/beta:refs/heads/beta
+```
+
+- Check divergence first: fetch each branch as a tracking ref and run
+  `git rev-list --left-right --count` on the two refs. Verify points being
+  dropped with `git log --oneline <upstream-ref> ^<old-fork-sha>` before any
+  `+` (force) push.
+- Plain push works when the fork branch is strictly behind; before adding `+`,
+  confirm it truly diverged — a plain push rejected already tells you that.
+  Never force-push a branch that is 0-ahead, regardless of what worked on the
+  local checkout the session before.
+- Push `refs/remotes/...:refs/heads/...`, never `HEAD:refs/heads/<branch>`
+  unless the checked-out branch IS the branch you intend to overwrite —
+  HEAD pushes whatever feature work happens to be checked out.
+- A URL push creates a stray remote tag named after the tracking ref
+  (`upstream-tmp/<branch>`); delete it after with
+  `git push origin :refs/tags/upstream-tmp/<branch>` so no one can thread
+  work onto it.
 
 ### Missing git identity on fresh clones
 
